@@ -15,7 +15,7 @@ import static org.apache.commons.io.FileUtils.openInputStream;
  */
 public class FSDirectory extends FSEntry {
 
-    private FileNamingStrategy fileNamingStrategy= getInstance();
+    private FileNamingStrategy fileNamingStrategy = getInstance();
 
     public FSDirectory(File target) {
         super(target);
@@ -32,7 +32,14 @@ public class FSDirectory extends FSEntry {
     }
 
     public FSFile save(File file) throws IOException {
+        if (has(file)) {
+            throw new IOException("Can't move file " + file + " into " + target);
+        }
         return save(file.getName(), openInputStream(file));
+    }
+
+    public boolean has(File file) {
+        return file.getParentFile().equals(target);
     }
 
     public FSFile save(String filename, InputStream content) throws IOException {

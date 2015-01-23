@@ -110,6 +110,13 @@ public class FSFileTest {
     }
 
     @Test
+    public void shouldMovingFileToTheSameDirectoryRaisingException() throws Exception {
+        exception.expect(IOException.class);
+
+        file.move(directory);
+    }
+
+    @Test
     public void shouldMovingNonExistingFileRaisingException() throws Exception {
         FSFile file = new FSFile(directory, new File(folder.getRoot(), "unknown"));
 
