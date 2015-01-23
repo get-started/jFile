@@ -23,6 +23,10 @@ abstract class FSEntry {
         FileUtils.forceDelete(target);
     }
 
+    public File getJavaFile(){
+        return target;
+    }
+
     public String getName() {
         return target.getName();
     }
