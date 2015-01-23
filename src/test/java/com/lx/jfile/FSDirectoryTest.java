@@ -1,5 +1,6 @@
 package com.lx.jfile;
 
+import com.lx.jfile.naming.FileNamingStrategy;
 import com.lx.utils.JavaFile;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -27,19 +28,21 @@ public class FSDirectoryTest {
 
     private File destFile;
     private File nonExistingFolder;
+    private File rootFolder;
 
     @Before
     public void setUp() throws Exception {
-        destFile = folder.newFile("test.txt");
-        nonExistingFolder = new File(folder.getRoot(), "unknown");
+        rootFolder = folder.newFolder("root");
+        destFile = new File(rootFolder, "test.txt");
+        nonExistingFolder = new File(rootFolder, "unknown");
     }
 
 
     @Test
     public void getPath() throws Exception {
-        FSDirectory directory = new FSDirectory(folder.getRoot());
+        FSDirectory directory = new FSDirectory(rootFolder);
 
-        assertThat(directory.getPath(), equalTo(folder.getRoot().getAbsolutePath().replace('\\', '/')));
+        assertThat(directory.getPath(), equalTo(rootFolder.getAbsolutePath().replace('\\', '/')));
     }
 
     @Test
@@ -64,7 +67,7 @@ public class FSDirectoryTest {
 
     @Test
     public void delete() throws Exception {
-        FSDirectory directory=new FSDirectory(folder.getRoot());
+        FSDirectory directory = new FSDirectory(rootFolder);
 
         directory.delete();
 
@@ -74,7 +77,7 @@ public class FSDirectoryTest {
     @Test
     public void saveFile() throws Exception {
         destFile.delete();
-        FSDirectory directory = new FSDirectory(folder.getRoot());
+        FSDirectory directory = new FSDirectory(rootFolder);
 
         FSFile file = directory.save(JavaFile.file("test.txt"));
 
@@ -93,4 +96,16 @@ public class FSDirectoryTest {
         assertThat(new File(nonExistingFolder, "test.txt"), content("simple"));
     }
 
+    @Test
+    public void enableFileNameStrategy() throws Exception {
+        FSDirectory directory = new FSDirectory(rootFolder);
+        directory.setFileNamingStrategy(new FileNamingStrategy() {
+            public String nameOf(String filename) {
+                return "fixed";
+            }
+        });
+
+        FSFile file = directory.save(JavaFile.file("test.txt"));
+        assertThat(file.getName(), equalTo("fixed"));
+    }
 }
