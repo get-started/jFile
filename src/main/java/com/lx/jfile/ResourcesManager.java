@@ -45,7 +45,7 @@ public class ResourcesManager {
     public FSFile move(String filename, String destinationDir) throws IOException {
         FSFile sourceFile = file(filename);
         FSDirectory directory = directory(destinationDir);
-        if(sourceFile.in(directory)){
+        if (sourceFile.in(directory)) {
             return sourceFile;
         }
         return sourceFile.move(directory);
