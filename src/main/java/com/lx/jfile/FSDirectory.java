@@ -32,18 +32,18 @@ public class FSDirectory extends FSEntry {
     }
 
     public FSFile save(File file) throws IOException {
-        if (has(file)) {
+        if (exists(file)) {
             throw new IOException("Can't move file " + file + " into " + target);
         }
         return save(file.getName(), openInputStream(file));
     }
 
-    public boolean has(File file) {
+    public boolean exists(File file) {
         return file.getParentFile().equals(target);
     }
 
     public FSFile save(String filename, InputStream content) throws IOException {
-        FSFile file = new FSFile(this, new File(target, fileNamingStrategy.nameOf(filename)));
+        FSFile file = file(fileNamingStrategy.nameOf(filename));
         file.save(content);
         return file;
     }
@@ -57,4 +57,13 @@ public class FSDirectory extends FSEntry {
     public void setFileNamingStrategy(FileNamingStrategy fileNamingStrategy) {
         this.fileNamingStrategy = fileNamingStrategy;
     }
+
+    public boolean exists(FSFile file) {
+        return exists(file.getJavaFile());
+    }
+
+    public FSFile file(String filename) {
+        return new FSFile(this, new File(target, filename));
+    }
+
 }

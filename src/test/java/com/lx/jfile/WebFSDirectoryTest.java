@@ -4,9 +4,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.mock.web.MockServletContext;
 
 import java.io.File;
@@ -26,17 +23,16 @@ public class WebFSDirectoryTest {
 
     @Before
     public void setUp() throws Exception {
-        context = new MockServletContext("", new ResourceLoader() {
-            @Override
-            public Resource getResource(String path) {
-                return new FileSystemResource(new File(folder.getRoot(), path));
-            }
+        context = new MockServletContext("", new RelativeResourceLoader(folder.getRoot()));
+    }
 
-            @Override
-            public ClassLoader getClassLoader() {
-                return ClassLoader.getSystemClassLoader();
-            }
-        });
+    @Test
+    public void webRoot() throws Exception {
+        WebFSDirectory directory = new WebFSDirectory(context, "");
+
+
+        assertThat(directory.getPath(), equalTo(""));
+        assertThat(directory.getJavaFile(), equalTo(folder.getRoot()));
     }
 
     @Test

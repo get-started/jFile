@@ -15,6 +15,9 @@ public class WebFSDirectory extends FSDirectory {
     }
 
     private String optimize(String path) {
+        if(path.equals("")){
+            return path;
+        }
         return "/" + path.replaceAll("^/|/$", "");
     }
 

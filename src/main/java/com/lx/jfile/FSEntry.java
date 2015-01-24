@@ -23,7 +23,7 @@ abstract class FSEntry {
         FileUtils.forceDelete(target);
     }
 
-    public File getJavaFile(){
+    public File getJavaFile() {
         return target;
     }
 
@@ -34,4 +34,25 @@ abstract class FSEntry {
     public abstract void create() throws IOException;
 
     public abstract String getPath();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        FSEntry fsEntry = (FSEntry) o;
+
+        return !(target != null ? !target.equals(fsEntry.target) : fsEntry.target != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return target != null ? target.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return target.toString();
+    }
 }

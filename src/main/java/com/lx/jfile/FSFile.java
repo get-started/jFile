@@ -54,4 +54,27 @@ public class FSFile extends FSEntry {
         delete();
         return destFile;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        FSFile fsFile = (FSFile) o;
+
+        return !(directory != null ? !directory.equals(fsFile.directory) : fsFile.directory != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (directory != null ? directory.hashCode() : 0);
+        return result;
+    }
+
+    boolean in(FSDirectory directory) {
+        return this.directory.equals(directory);
+    }
 }

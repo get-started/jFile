@@ -13,9 +13,7 @@ import java.io.File;
 
 import static com.lx.utils.FileMatchers.content;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Created by L.x on 15-1-23.
@@ -72,6 +70,16 @@ public class FSDirectoryTest {
         directory.delete();
 
         assertFalse(directory.exists());
+    }
+
+    @Test
+    public void openFile() throws Exception {
+        FSDirectory directory = new FSDirectory(rootFolder);
+
+        FSFile file = directory.file("test.txt");
+
+        file.create();
+        assertTrue(new File(directory.getJavaFile(), "test.txt").exists());
     }
 
     @Test
