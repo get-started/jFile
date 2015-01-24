@@ -66,4 +66,8 @@ public class FSDirectory extends FSEntry {
         return new FSFile(this, new File(target, filename));
     }
 
+    public boolean match(String path) {
+        return getPath().equals(path);
+    }
+
 }

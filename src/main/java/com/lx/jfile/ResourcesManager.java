@@ -1,5 +1,6 @@
 package com.lx.jfile;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -22,7 +23,7 @@ public class ResourcesManager {
 
     public FSDirectory directory(String path) throws IOException {
         for (FSDirectory directory : directories) {
-            if (directory.getPath().equals(path)) {
+            if (directory.match(path)) {
                 return directory;
             }
         }
@@ -37,6 +38,10 @@ public class ResourcesManager {
         return directory(path).save(source);
     }
 
+    public FSFile save(String filename, ByteArrayInputStream content, String path) throws IOException {
+        return directory(path).save(filename, content);
+    }
+
     public FSFile move(String filename, String destinationDir) throws IOException {
         FSFile sourceFile = file(filename);
         FSDirectory directory = directory(destinationDir);
@@ -45,5 +50,4 @@ public class ResourcesManager {
         }
         return sourceFile.move(directory);
     }
-
 }

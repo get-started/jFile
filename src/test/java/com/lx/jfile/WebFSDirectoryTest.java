@@ -4,75 +4,84 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.springframework.mock.web.MockServletContext;
 
-import java.io.File;
+import java.util.Arrays;
+import java.util.Collection;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by L.x on 15-1-23.
  */
+@RunWith(Parameterized.class)
 public class WebFSDirectoryTest {
-
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
+    private MockServletContext servletContext;
+    private String contextPath;
 
-    private MockServletContext context;
+    @Parameterized.Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][]{
+                {""},
+                {"/app"}
+        });
+    }
+
+    public WebFSDirectoryTest(String contextPath) {
+        this.contextPath = contextPath;
+    }
 
     @Before
     public void setUp() throws Exception {
-        context = new MockServletContext("", new RelativeResourceLoader(folder.getRoot()));
+        servletContext = new MockServletContext(new RelativeResourceLoader(folder.getRoot()));
+        servletContext.setContextPath(contextPath);
     }
 
     @Test
     public void webRoot() throws Exception {
-        WebFSDirectory directory = new WebFSDirectory(context, "");
+        WebFSDirectory directory = new WebFSDirectory(servletContext, "");
 
+        assertThat(directory.getPath(), equalTo(servletContext.getContextPath()));
+    }
 
-        assertThat(directory.getPath(), equalTo(""));
-        assertThat(directory.getJavaFile(), equalTo(folder.getRoot()));
+    private String path(String path) {
+        return servletContext.getContextPath() + path;
     }
 
     @Test
     public void pathStartsWithSlash() throws Exception {
-        WebFSDirectory directory = new WebFSDirectory(context, "/upload");
+        WebFSDirectory directory = new WebFSDirectory(servletContext, "/upload");
 
 
-        assertThat(directory.getPath(), equalTo("/upload"));
-        assertThat(directory.getJavaFile(), equalTo(new File(folder.getRoot(), "upload")));
+        assertThat(directory.getPath(), equalTo(path("/upload")));
+        assertTrue(directory.match("/upload"));
     }
 
     @Test
     public void pathNotStartWithSlash() throws Exception {
-        WebFSDirectory directory = new WebFSDirectory(context, "upload");
+        WebFSDirectory directory = new WebFSDirectory(servletContext, "upload");
 
-        assertThat(directory.getPath(), equalTo("/upload"));
-        assertThat(directory.getJavaFile(), equalTo(new File(folder.getRoot(), "upload")));
+        assertThat(directory.getPath(), equalTo(path("/upload")));
     }
 
     @Test
     public void pathEndsWithSlash() throws Exception {
-        WebFSDirectory directory = new WebFSDirectory(context, "upload/");
+        WebFSDirectory directory = new WebFSDirectory(servletContext, "upload/");
 
-        assertThat(directory.getPath(), equalTo("/upload"));
-        assertThat(directory.getJavaFile(), equalTo(new File(folder.getRoot(), "upload")));
+        assertThat(directory.getPath(), equalTo(path("/upload")));
     }
 
     @Test
     public void pathAroundSlashes() throws Exception {
-        WebFSDirectory directory = new WebFSDirectory(context, "/upload/");
+        WebFSDirectory directory = new WebFSDirectory(servletContext, "/upload/");
 
-        assertThat(directory.getPath(), equalTo("/upload"));
-        assertThat(directory.getJavaFile(), equalTo(new File(folder.getRoot(), "upload")));
+        assertThat(directory.getPath(), equalTo(path("/upload")));
     }
 
-    @Test
-    public void includeContextPath() throws Exception {
-        context.setContextPath("/app");
-        WebFSDirectory directory = new WebFSDirectory(context, "/upload");
-
-        assertThat(directory.getPath(), equalTo("/app/upload"));
-    }
 }

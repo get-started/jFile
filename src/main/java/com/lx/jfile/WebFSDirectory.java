@@ -7,22 +7,29 @@ import java.io.File;
  * Created by L.x on 15-1-23.
  */
 public class WebFSDirectory extends FSDirectory {
+    private final String contextPath;
     private String path;
 
     public WebFSDirectory(ServletContext context, String path) {
         super(new File(context.getRealPath(path)));
-        this.path = context.getContextPath() + optimize(path);
+        contextPath = context.getContextPath();
+        this.path = optimize(path);
     }
 
     private String optimize(String path) {
-        if(path.equals("")){
-            return path;
+        String result = path.replaceAll("^/|/$", "");
+        if (result.equals("")) {
+            return result;
         }
-        return "/" + path.replaceAll("^/|/$", "");
+        return "/" + result;
     }
 
     @Override
     public String getPath() {
-        return path;
+        return contextPath + path;
+    }
+
+    public boolean match(String path) {
+        return this.path.equals(path);
     }
 }
