@@ -6,12 +6,16 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.springframework.mock.web.MockServletContext;
 
 import javax.servlet.ServletContext;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 
 import static com.lx.utils.FileMatchers.content;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -20,7 +24,24 @@ import static org.junit.Assert.*;
 /**
  * Created by L.x on 15-1-24.
  */
+@RunWith(Parameterized.class)
 public class ResourcesManagerTest {
+
+
+    private String contextPath;
+
+    @Parameterized.Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][]{
+                {""},
+                {"/app"}
+        });
+    }
+
+    public ResourcesManagerTest(String contextPath) {
+        this.contextPath = contextPath;
+    }
+
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
     @Rule
@@ -33,7 +54,9 @@ public class ResourcesManagerTest {
     @Before
     public void setUp() throws Exception {
         final File webRoot = folder.newFolder("webRoot");
-        ServletContext servletContext = new MockServletContext("", new RelativeResourceLoader(webRoot));
+        ServletContext servletContext = new MockServletContext(new RelativeResourceLoader(webRoot)) {{
+            setContextPath(contextPath);
+        }};
         resourcesManager = new ResourcesManager();
         uploadDir = new WebFSDirectory(servletContext, "upload");
         webRootDir = new WebFSDirectory(servletContext, "");
@@ -68,6 +91,15 @@ public class ResourcesManagerTest {
 
         assertTrue(webRootDir.exists(file));
         assertThat(file.getJavaFile(), content("simple"));
+    }
+
+    @Test
+    public void saveStream() throws Exception {
+        FSFile file = resourcesManager.save("test.txt", new ByteArrayInputStream("simple".getBytes()), "");
+
+        assertTrue(webRootDir.exists(file));
+        assertThat(file.getJavaFile(), content("simple"));
+
     }
 
     @Test
